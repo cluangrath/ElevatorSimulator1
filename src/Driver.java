@@ -18,9 +18,33 @@ public class Driver {
 	public static void main(String[] args) throws IOException {
 		
 		ArrayList<Person> people = new ArrayList<Person>();
+		ArrayList<Integer> desiredFloors = new ArrayList<Integer>();
+		desiredFloors.add(4);
+		desiredFloors.add(10);
+		desiredFloors.add(7);
 		
 		System.out.println("---Program Start---");
 		
+		Person person1 = new Person("Chad", desiredFloors, 0, 5);
+		Thread personThread = new Thread(person1);
+		personThread.start();
+		
+		Elevator elevator1 = new Elevator();
+		Thread elevatorThread = new Thread(elevator1);
+		
+		elevator1.riders.add(person1);
+		elevatorThread.start();
+		
+		//System.out.println("---Program End---");
+	}//end main
+	
+	private static String removeWhiteSpace(String stringToCleanse)
+	{
+		return stringToCleanse.replaceAll("\\s+", "");
+	}
+	
+	private static void initializeSimulator() throws IOException
+	{
 		String fileName = "../src/test.txt";
 		
 		Scanner reader = new Scanner(System.in);
@@ -48,7 +72,7 @@ public class Driver {
 			String desiredFloors = fileLine.substring(fileLine.indexOf("[") + 1, fileLine.indexOf("]"));
 			String[] desiredFloorsPartial = desiredFloors.split(";");
 			
-			Queue<Integer> desiredFloorsQueue = new LinkedList<Integer>(); //prep the queue to send to the person object
+			ArrayList<Integer> desiredFloorsQueue = new ArrayList<Integer>(); //prep the queue to send to the person object
 			
 			for(String partial : desiredFloorsPartial)
 			{
@@ -72,11 +96,6 @@ public class Driver {
 			Thread thread = new Thread(elevator);
 			thread.start();
 		}
-	}//end main
-	
-	private static String removeWhiteSpace(String stringToCleanse)
-	{
-		return stringToCleanse.replaceAll("\\s+", "");
 	}
 
 }
