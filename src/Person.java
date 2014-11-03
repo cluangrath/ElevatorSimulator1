@@ -7,6 +7,8 @@ public class Person implements Runnable {
 	public LinkedList<Integer> desiredFloors;
 	public int startingFloor;
 	public long floorIdleTime;
+	public boolean isSleeping=false;
+	public boolean atFinalDest = false;
 	
 	public Person(String name, LinkedList<Integer> desiredFloors, int startFloor, int floorIdleTime)
 	{

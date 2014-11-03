@@ -9,6 +9,7 @@ public class Elevator implements Runnable {
 	public static LinkedList<LinkedList<Person>> floorQueues = new LinkedList<LinkedList<Person>>(); //the index of the linkedlist is the floor in which it will represent
 	
 	public String elevatorName;
+	public static final int CAPACITY = 3;
 	public int currentFloor;
 	public int destinationFloor;
 	public int direction; //1 for up, -1 for down
@@ -26,7 +27,7 @@ public class Elevator implements Runnable {
 		this.elevatorCondition = this.elevatorLock.newCondition();
 		this.direction = 1;
 	}
-	
+	/*
 	public void run() {
 		int nextFloor = findNextDestinationFloor();
 		while (nextFloor != -1) {
@@ -44,6 +45,130 @@ public class Elevator implements Runnable {
 				e.printStackTrace();
 			}
 		}
+	}*/
+	
+	public void run(){
+		int nextFloor = findNextDestinationFloor(true);
+		while (nextFloor != -1)
+		{
+			//System.out.println(this.riders.size());
+			
+			if(nextFloor>this.currentFloor)
+			{
+
+				for(int i = this.currentFloor;i<=nextFloor;i++) //Need to service every floor. Oh shit this only goes up.
+				{
+					System.out.println("Elevator "+ this.elevatorName+" arrived at floor "+i);
+					for(int j = 0;j<this.riders.size();j++)//For every rider...
+					{
+						
+						Person p = this.riders.get(j);
+						if(p.desiredFloors.get(0)==i)//If this is their floor, then pop off their desired floor, and push them off.
+						{
+							p.desiredFloors.pop();//Got to their floor.
+							if(p.desiredFloors.isEmpty()){p.atFinalDest = true;} //They are where they want to be.
+							Elevator.floorQueues.get(j).add(p); //Should be passed by reference
+							this.riders.remove(j); //No longer in elevator
+						}
+					}
+					
+					for(int j=0;j<Elevator.floorQueues.get(i).size();j++)
+					{
+						if(this.riders.size()==Elevator.CAPACITY)
+						{
+							break;
+						}
+						
+						Person p = Elevator.floorQueues.get(i).get(j);
+						
+						if(!p.isSleeping) //If our person isn't doing shit, put him on the elevator. Currently will always let him on.
+						{
+							System.out.println(p.name);
+							this.riders.add(p);
+							Elevator.floorQueues.get(i).pop();
+							j--;//Need to correct for error of removing an element. Somewhat trippy.
+						}
+					}
+					
+					try {
+						Thread.sleep(1000);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					
+					System.out.println("Elevator "+ this.elevatorName+" serviced floor "+i);
+					currentFloor = nextFloor;
+					nextFloor = findNextDestinationFloor(true);
+				}
+			}else{ //Copy paste for minus
+				for(int i = this.currentFloor;i>=nextFloor;i--) //Need to service every floor. Oh shit this only goes up.
+				{
+					System.out.println("Elevator "+ this.elevatorName+" arrived at floor "+i);
+					for(int j = 0;j<this.riders.size();j++)//For every rider...
+					{
+						
+						Person p = this.riders.get(j);
+						if(p.desiredFloors.get(0)==i)//If this is their floor, then pop off their desired floor, and push them off.
+						{
+							p.desiredFloors.pop();//Got to their floor.
+							if(p.desiredFloors.isEmpty()){p.atFinalDest = true;} //They are where they want to be.
+							Elevator.floorQueues.get(j).add(p); //Should be passed by reference
+							this.riders.remove(j); //No longer in elevator
+						}
+					}
+					
+					for(int j=0;j<Elevator.floorQueues.get(i).size();j++)
+					{
+						if(this.riders.size()==Elevator.CAPACITY)
+						{
+							break;
+						}
+						
+						Person p = Elevator.floorQueues.get(i).get(j);
+						
+						if(!p.isSleeping) //If our person isn't doing shit, put him on the elevator. Currently will always let him on.
+						{
+							System.out.println(p.name);
+							this.riders.add(p);
+							Elevator.floorQueues.get(i).pop();
+							j--;//Need to correct for error of removing an element. Somewhat trippy.
+						}
+					}
+					
+					try {
+						Thread.sleep(1000);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					
+					System.out.println("Elevator "+ this.elevatorName+" serviced floor "+i);
+					currentFloor = nextFloor;
+					nextFloor = findNextDestinationFloor(true);
+				}
+			}
+		}
+	}
+	
+	private int findNextDestinationFloor(boolean useThis)
+	{
+		if(!riders.isEmpty()) //if there is someone already on the elevator, go wherever they want
+		{
+			//System.out.println(riders.get(0).desiredFloors.get(0));
+			return riders.get(0).desiredFloors.get(0);
+		}
+		
+		
+		for(int i =0;i<Elevator.floorQueues.size();i++) //Check all floors. If one has people waiting on it, go to that one.
+		{
+			if(Elevator.floorQueues.get(i).isEmpty())
+			{
+				return i;
+			}
+		}
+		
+		return -1; //If there is no one on the elevator and no one on any floor, signal -1
 	}
 	
 	/*
@@ -116,4 +241,5 @@ public class Elevator implements Runnable {
 		
 		return closestFloor;
 	}
+	
 }

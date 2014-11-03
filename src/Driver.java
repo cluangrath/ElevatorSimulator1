@@ -17,6 +17,7 @@ public class Driver {
 	 */
 	public static void main(String[] args) throws IOException {
 		
+		/*
 		ArrayList<Person> people = new ArrayList<Person>();
 		LinkedList<Integer> desiredFloors = new LinkedList<Integer>();
 		desiredFloors.add(4);
@@ -36,11 +37,29 @@ public class Driver {
 		elevatorThread.start();
 
 		//System.out.println("---Program End---");
+		 * 
+		 */
+		
+		Elevator elevator1 = new Elevator("Ryan");
+		Thread eThread = new Thread(elevator1);
+		initializeSimulator();
+		eThread.start();
+		
+		
 	}//end main
 	
 	private static String removeWhiteSpace(String stringToCleanse)
 	{
 		return stringToCleanse.replaceAll("\\s+", "");
+	}
+	
+	private static void fillFloorQueue(int numFloors)
+	{
+		while(numFloors>0)
+		{
+			Elevator.floorQueues.add(new LinkedList<Person>());
+			numFloors--;
+		}
 	}
 	
 	private static void initializeSimulator() throws IOException
@@ -53,6 +72,7 @@ public class Driver {
 		
 		System.out.println("How many floors would you like for this simulator?");
 		int numFloors = reader.nextInt();
+		fillFloorQueue(numFloors);
 		
 		//There are going to be numElevators number of threads...
 		System.out.println("The user wants " + numElevators + " elevators for this simulator run.");
@@ -83,10 +103,14 @@ public class Driver {
 			String idleAndFloorStart = removeWhiteSpace(fileLine.substring(fileLine.indexOf("]") + 1));
 			
 			int idleFloorStay = Integer.parseInt(idleAndFloorStart.substring(0, 1));
-			int startFloor = Integer.parseInt(idleAndFloorStart.substring(1));
+			int startFloor = Integer.parseInt(idleAndFloorStart.substring(1)); //Note to Chad: This won't work if they have an idle time that is two digits. But its fine for testing
 			
 			Person newPerson = new Person(name, desiredFloorsQueue, idleFloorStay, startFloor);
+			
+			Elevator.floorQueues.get(startFloor).add(newPerson);
 		}
+		
+		for(Person p : Elevator.floorQueues.get(0)){System.out.println(p.name);}
 		
 		System.out.println("There are " + numPeople + " people for this simulator run.");
 	}
